@@ -1,4 +1,4 @@
 node_modules
 package-lock.json
-dist/*.map
-dist/*.d.ts
+*.map
+*.d.ts

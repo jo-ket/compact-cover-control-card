@@ -6,7 +6,7 @@ import terser from '@rollup/plugin-terser';
 export default {
   input: 'src/compact-cover-control-card.ts', 
   output: {
-    file: 'dist/compact-cover-control-card.js',
+    file: 'compact-cover-control-card.js',
     format: 'es',
     sourcemap: true
   },
@@ -19,6 +19,6 @@ export default {
       include: /node_modules/
     }),
     typescript(),
-    terser()  // Add this line
+    terser()  
 ]
 };
