@@ -2,5 +2,5 @@
   "name": "Compact Cover Control Card",
   "render_readme": true,
   "filename": "compact-cover-control-card.js",
-  "content_in_root": true
+  "content_in_root": false
 }
