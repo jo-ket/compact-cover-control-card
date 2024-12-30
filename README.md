@@ -3,9 +3,9 @@
 A space-efficient custom card for Home Assistant that provides an intuitive interface for controlling multiple cover entities organized by rooms. Perfect for managing blinds, shades, and other cover entities across your home.
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
-[![GH-release](https://img.shields.io/github/v/release/YOUR_GITHUB_USERNAME/compact-cover-control-card.svg?style=flat-square)](https://github.com/YOUR_GITHUB_USERNAME/compact-cover-control-card/releases)
-[![GH-downloads](https://img.shields.io/github/downloads/YOUR_GITHUB_USERNAME/compact-cover-control-card/total?style=flat-square)](https://github.com/YOUR_GITHUB_USERNAME/compact-cover-control-card/releases)
-[![GH-last-commit](https://img.shields.io/github/last-commit/YOUR_GITHUB_USERNAME/compact-cover-control-card.svg?style=flat-square)](https://github.com/YOUR_GITHUB_USERNAME/compact-cover-control-card/commits/master)
+[![GH-release](https://img.shields.io/github/v/release/jo-ket/compact-cover-control-card.svg?style=flat-square)](https://github.com/jo-ket/compact-cover-control-card/releases)
+[![GH-downloads](https://img.shields.io/github/downloads/jo-ket/compact-cover-control-card/total?style=flat-square)](https://github.com/jo-ket/compact-cover-control-card/releases)
+[![GH-last-commit](https://img.shields.io/github/last-commit/jo-ket/compact-cover-control-card.svg?style=flat-square)](https://github.com/jo-ket/compact-cover-control-card/commits/master)
 
 ## Features
 
