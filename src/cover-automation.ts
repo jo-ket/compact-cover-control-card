@@ -15,16 +15,31 @@ export class CoverAutomationHandler {
   private validateConfig(config: CardConfig): void {
     if (config.lux_automation) {
       this.validateAutomations(config.lux_automation, 'Card');
+      if (config.invert_percentage) {
+        config.lux_automation.forEach(auto => {
+          auto.position = 100 - auto.position;
+        });
+      }
     }
 
     config.rooms.forEach(room => {
       if (room.lux_automation) {
         this.validateAutomations(room.lux_automation, `Room ${room.name}`);
+        if (config.invert_percentage) {
+          room.lux_automation.forEach(auto => {
+            auto.position = 100 - auto.position;
+          });
+        }
       }
 
       room.covers.forEach(cover => {
         if (cover.lux_automation) {
           this.validateAutomations(cover.lux_automation, `Cover ${cover.name} in room ${room.name}`);
+          if (config.invert_percentage) {
+            cover.lux_automation.forEach(auto => {
+              auto.position = 100 - auto.position;
+            });
+          }
         }
       });
     });
