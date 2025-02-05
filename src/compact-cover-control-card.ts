@@ -2,6 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { HomeAssistant } from 'custom-card-helpers';
 import { CardConfig, RoomConfig, CoverConfig } from './types';
+import { CoverAutomationHandler } from './cover-automation';
 
 @customElement('compact-cover-control-card')
 export class CompactCoverControlCard extends LitElement {
@@ -264,6 +265,22 @@ export class CompactCoverControlCard extends LitElement {
     }
   }
 
+  private automationHandler?: CoverAutomationHandler;
+
+  protected updated(changedProps: Map<string, unknown>): void {
+    super.updated(changedProps);
+    
+    if (changedProps.has('hass')) {
+      // Initialize automation handler if needed
+      if (!this.automationHandler) {
+        this.automationHandler = new CoverAutomationHandler(this.config, this.hass);
+      }
+      
+      // Run automations
+      this.automationHandler.handleAutomation();
+    }
+  }
+
   setConfig(config: CardConfig) {
     if (!config.rooms) {
       throw new Error('Please define rooms');
@@ -292,6 +309,8 @@ export class CompactCoverControlCard extends LitElement {
 
     this._validatePosition(config.middle_position, 
       'Card has invalid middle_position');
+
+    new CoverAutomationHandler(config, this.hass);
 
     this.config = {
       invert_percentage: false,
