@@ -5,56 +5,107 @@ import { CardConfig, RoomConfig, CoverConfig, TimeConfig, LuxAutomation } from '
 export class CoverAutomationHandler {
   private config: CardConfig;
   private hass: HomeAssistant;
+  private sensorStates: Map<string, string> = new Map();
+  private initialCheckDone = false;
 
   constructor(config: CardConfig, hass: HomeAssistant) {
-    this.validateConfig(config);
-    this.config = config;
     this.hass = hass;
-  }
+    this.config = this.validateConfig(config);
+}
 
-  private validateConfig(config: CardConfig): void {
-    if (config.lux_automation) {
-      this.validateAutomations(config.lux_automation, 'Card');
-      if (config.invert_percentage) {
-        config.lux_automation.forEach(auto => {
-          auto.position = 100 - auto.position;
-        });
-      }
+private validateConfig(config: CardConfig): CardConfig {
+    // Create new config with potentially inverted positions
+    const newConfig = config.invert_percentage ? {
+        ...config,
+        lux_automation: config.lux_automation?.map(auto => ({
+            ...auto,
+            position: 100 - auto.position
+        })),
+        rooms: config.rooms.map(room => ({
+            ...room,
+            lux_automation: room.lux_automation?.map(auto => ({
+                ...auto,
+                position: 100 - auto.position
+            })),
+            covers: room.covers.map(cover => ({
+                ...cover,
+                lux_automation: cover.lux_automation?.map(auto => ({
+                    ...auto,
+                    position: 100 - auto.position
+                }))
+            }))
+        }))
+    } : config;
+
+    // Validate the new config
+    if (newConfig.lux_automation) {
+        this.validateAutomations(newConfig.lux_automation, 'Card');
     }
-
-    config.rooms.forEach(room => {
-      if (room.lux_automation) {
-        this.validateAutomations(room.lux_automation, `Room ${room.name}`);
-        if (config.invert_percentage) {
-          room.lux_automation.forEach(auto => {
-            auto.position = 100 - auto.position;
-          });
+    newConfig.rooms.forEach(room => {
+        if (room.lux_automation) {
+            this.validateAutomations(room.lux_automation, `Room ${room.name}`);
         }
-      }
-
-      room.covers.forEach(cover => {
-        if (cover.lux_automation) {
-          this.validateAutomations(cover.lux_automation, `Cover ${cover.name} in room ${room.name}`);
-          if (config.invert_percentage) {
-            cover.lux_automation.forEach(auto => {
-              auto.position = 100 - auto.position;
-            });
-          }
-        }
-      });
+        room.covers.forEach(cover => {
+            if (cover.lux_automation) {
+                this.validateAutomations(cover.lux_automation, `Cover ${cover.name} in room ${room.name}`);
+            }
+        });
     });
+    return newConfig;
   }
 
-  public handleAutomation(): void {
-    if (!this.hasAnyAutomation()) {
-      return;
+  private getAllSensors(): Set<string> {
+    const sensors = new Set<string>();
+    
+    if (this.config.lux_automation) {
+      this.config.lux_automation.forEach(auto => sensors.add(auto.entity));
     }
 
     this.config.rooms.forEach(room => {
+      if (room.lux_automation) {
+        room.lux_automation.forEach(auto => sensors.add(auto.entity));
+      }
       room.covers.forEach(cover => {
-        this.processCoverAutomation(cover, room);
+        if (cover.lux_automation) {
+          cover.lux_automation.forEach(auto => sensors.add(auto.entity));
+        }
       });
     });
+
+    return sensors;
+  }
+
+  public updateHass(hass: HomeAssistant): void {
+    this.hass = hass;
+  }
+
+  public handleAutomation(): void {
+    if (!this.hasAnyAutomation()) return;
+
+    let hasChanges = !this.initialCheckDone;
+    this.initialCheckDone = true;
+    
+    this.getAllSensors().forEach(entity => {
+        const currentState = this.hass.states[entity]?.state;
+        const previousState = this.sensorStates.get(entity);
+        
+        console.log(`Checking sensor ${entity}: current=${currentState}, previous=${previousState}`);
+        
+        if (currentState !== previousState) {
+            console.log(`Change detected for ${entity}`);
+            hasChanges = true;
+            this.sensorStates.set(entity, currentState);
+        }
+    });
+
+    if (hasChanges) {
+        console.log('Processing automations due to changes');
+        this.config.rooms.forEach(room => {
+            room.covers.forEach(cover => {
+                this.processCoverAutomation(cover, room);
+            });
+        });
+    }
   }
 
   public hasAnyAutomation(): boolean {

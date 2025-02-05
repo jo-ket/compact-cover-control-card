@@ -14,6 +14,8 @@ export class CompactCoverControlCard extends LitElement {
     OPEN: 'rgb(250, 204, 21)'     // yellow
   };
 
+  private automationHandler?: CoverAutomationHandler;
+
   @property({ attribute: false }) public hass!: HomeAssistant;
   @property({ type: Object }) public config!: CardConfig;
 
@@ -264,23 +266,19 @@ export class CompactCoverControlCard extends LitElement {
       throw new Error(`${errorPrefix}. Must be between ${CompactCoverControlCard.SLIDER_MIN} and ${CompactCoverControlCard.SLIDER_MAX}`);
     }
   }
-
-  private automationHandler?: CoverAutomationHandler;
-
+  
   protected updated(changedProps: Map<string, unknown>): void {
     super.updated(changedProps);
     
     if (changedProps.has('hass')) {
-      // Initialize automation handler if needed
       if (!this.automationHandler) {
         this.automationHandler = new CoverAutomationHandler(this.config, this.hass);
       }
-      
-      // Run automations
+      this.automationHandler.updateHass(this.hass);
       this.automationHandler.handleAutomation();
     }
   }
-
+  
   setConfig(config: CardConfig) {
     if (!config.rooms) {
       throw new Error('Please define rooms');
