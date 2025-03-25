@@ -22,23 +22,18 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 
 ## Installation
 
-### HACS (Recommended)
+## Installation
+
+### HACS Installation
 
 1. Make sure [HACS](https://hacs.xyz/) is installed in your Home Assistant instance
-2. Search for "Compact Cover Control Card" in HACS frontend
-3. Click Install 
-4. Add configuration to your dashboard
-
-### Manual Installation (Not Recommended)
-
-1. Copy `compact-cover-control-card.js` to your `config/www` folder
-2. Add reference to card in your `configuration.yaml`:
-```yaml
-frontend:
-  extra_module_url:
-    - /local/compact-cover-control-card.js
-```
-3. Restart Home Assistant
+2. Add this repository as a custom repository in HACS:
+   - Go to HACS > Frontend 
+   - Click the three dots in the top right corner
+   - Select "Custom repositories"
+   - Add `https://github.com/jo-ket/compact-cover-control-card` with category "Dashboard"
+3. Click "Install" to install the card
+4. Add the card to your dashboard
 
 ## Configuration Options
 
