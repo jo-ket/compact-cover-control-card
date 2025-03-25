@@ -16,6 +16,8 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 - 🔄 Support for KNX-style percentage inversion
 - ⚡ Quick actions for entire rooms (open, middle position, close)
 - 🎨 Gradient visualization of cover positions
+- 🌞 Lux-based automated cover control
+- ⏱️ Time-based automation constraints
 - 🏃‍♂️ Responsive design with Home Assistant theme integration
 
 ## Installation
@@ -45,6 +47,7 @@ frontend:
 | `title` | string | *optional* | Card title |
 | `invert_percentage` | boolean | `false` | Invert percentage display (useful for KNX covers where 0% means open and 100% means closed) |
 | `middle_position` | number | `50` | Default middle position (0-100) for all covers |
+| `lux_automation` | array | *optional* | List of light-based automation rules for all covers |
 | `rooms` | array | *required* | List of room configurations |
 
 ### Room Configuration
@@ -53,6 +56,7 @@ frontend:
 |------|------|---------|-------------|
 | `name` | string | *required* | Room name |
 | `middle_position` | number | *optional* | Override default middle position for this room |
+| `lux_automation` | array | *optional* | List of light-based automation rules for this room |
 | `covers` | array | *required* | List of cover configurations |
 
 ### Cover Configuration
@@ -63,6 +67,25 @@ frontend:
 | `entity` | string | *required* | Cover entity ID |
 | `lock_entity` | string | *optional* | Entity ID for lock control (when state is 'on', cover controls are disabled) |
 | `middle_position` | number | *optional* | Override middle position for this specific cover |
+| `lux_automation` | array | *optional* | List of light-based automation rules for this specific cover |
+
+### Lux Automation Configuration
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `entity` | string | *required* | Lux sensor entity ID |
+| `position` | number | *required* | Target position (0-100) when conditions are met |
+| `above` | number | *optional* | Minimum lux threshold to trigger automation |
+| `below` | number | *optional* | Maximum lux threshold to trigger automation |
+| `after` | object | *optional* | Time after which automation should run |
+| `before` | object | *optional* | Time before which automation should run |
+
+#### Time Configuration
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `hour` | number | *required* | Hour (0-23) |
+| `minute` | number | *required* | Minute (0-59) |
 
 ## Usage Examples
 
@@ -77,21 +100,46 @@ rooms:
         entity: cover.living_room_window
 ```
 
-### Complete Configuration
+### Complete Configuration with Lux Automation
 
 ```yaml
 type: custom:compact-cover-control-card
 title: House Blinds
 invert_percentage: true
 middle_position: 70
+# Card-level automation for all covers
+lux_automation:
+  - entity: sensor.outdoor_lux
+    above: 20000          # Very bright sun
+    position: 20          # Mostly closed for sun protection
+    after:                # Only in daytime
+      hour: 9
+      minute: 0
+    before:
+      hour: 18
+      minute: 0
 rooms:
   - name: Living Room
     middle_position: 60
+    # Room-level automation
+    lux_automation:
+      - entity: sensor.living_room_lux
+        below: 100        # When it gets dark
+        position: 0       # Close completely
+        after:            # Only in evening
+          hour: 18
+          minute: 0
     covers:
       - name: Main Window
         entity: cover.living_room_main
         lock_entity: binary_sensor.living_room_window_open
         middle_position: 50
+        # Cover-specific automation
+        lux_automation:
+          - entity: sensor.main_window_lux
+            above: 5000    # Moderate sunlight
+            below: 15000   # Not too bright
+            position: 60   # Partially open
       - name: Side Window
         entity: cover.living_room_side
         lock_entity: binary_sensor.weather_protection
@@ -104,6 +152,23 @@ rooms:
 ```
 
 ## Special Features
+
+### Lux-Based Automation
+The card supports built-in lux-based automation for covers, allowing them to respond automatically to changing light conditions:
+
+- Can be configured at card, room, or cover level
+- Supports multiple rules with different conditions
+- Rules are evaluated in order (cover-specific rules first)
+- First matching rule is applied
+- Positions are only changed when needed (checks current position)
+- Time constraints allow for daylight/evening-specific behaviors
+- Automations only run when relevant sensor values change
+
+This feature is particularly useful for:
+- Closing blinds during bright sunlight to prevent overheating
+- Opening blinds when light levels are comfortable
+- Closing blinds in the evening when it gets dark
+- Creating different behaviors for different times of day
 
 ### KNX Integration
 The `invert_percentage` option is particularly useful for KNX installations where the cover percentage is inverted compared to Home Assistant's standard (in KNX, 0% typically means fully open, while in Home Assistant 0% means fully closed). Enable this option to match your KNX cover behavior while maintaining an intuitive user interface.
