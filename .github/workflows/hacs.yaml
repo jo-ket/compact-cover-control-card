@@ -1,6 +1,7 @@
 name: HACS Action
 on:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   hacs:
