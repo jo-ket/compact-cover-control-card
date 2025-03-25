@@ -2,6 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { HomeAssistant } from 'custom-card-helpers';
 import { CardConfig, RoomConfig, CoverConfig } from './types';
+import { CoverAutomationHandler } from './cover-automation';
 
 @customElement('compact-cover-control-card')
 export class CompactCoverControlCard extends LitElement {
@@ -12,6 +13,8 @@ export class CompactCoverControlCard extends LitElement {
     CLOSED: 'rgb(59, 130, 246)',  // blue
     OPEN: 'rgb(250, 204, 21)'     // yellow
   };
+
+  private automationHandler?: CoverAutomationHandler;
 
   @property({ attribute: false }) public hass!: HomeAssistant;
   @property({ type: Object }) public config!: CardConfig;
@@ -263,7 +266,19 @@ export class CompactCoverControlCard extends LitElement {
       throw new Error(`${errorPrefix}. Must be between ${CompactCoverControlCard.SLIDER_MIN} and ${CompactCoverControlCard.SLIDER_MAX}`);
     }
   }
-
+  
+  protected updated(changedProps: Map<string, unknown>): void {
+    super.updated(changedProps);
+    
+    if (changedProps.has('hass')) {
+      if (!this.automationHandler) {
+        this.automationHandler = new CoverAutomationHandler(this.config, this.hass);
+      }
+      this.automationHandler.updateHass(this.hass);
+      this.automationHandler.handleAutomation();
+    }
+  }
+  
   setConfig(config: CardConfig) {
     if (!config.rooms) {
       throw new Error('Please define rooms');
@@ -292,6 +307,8 @@ export class CompactCoverControlCard extends LitElement {
 
     this._validatePosition(config.middle_position, 
       'Card has invalid middle_position');
+
+    new CoverAutomationHandler(config, this.hass);
 
     this.config = {
       invert_percentage: false,
