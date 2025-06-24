@@ -7,6 +7,8 @@ import { CoverAutomationHandler } from './cover-automation';
 @customElement('compact-cover-control-card')
 export class CompactCoverControlCard extends LitElement {
   static readonly DEFAULT_MIDDLE_POSITION = 50;
+  static readonly DEFAULT_SUN_POSITION = 100;    
+  static readonly DEFAULT_MOON_POSITION = 0;    
   static readonly SLIDER_MIN = 0;
   static readonly SLIDER_MAX = 100;
   static readonly GRADIENT_COLORS = {
@@ -224,10 +226,24 @@ export class CompactCoverControlCard extends LitElement {
            CompactCoverControlCard.DEFAULT_MIDDLE_POSITION;
   }
 
+  private _getSunPosition(cover: CoverConfig, room: RoomConfig): number {
+    return cover.sun_position ?? 
+           room.sun_position ?? 
+           this.config.sun_position ?? 
+           CompactCoverControlCard.DEFAULT_SUN_POSITION;
+  }
+
+  private _getMoonPosition(cover: CoverConfig, room: RoomConfig): number {
+    return cover.moon_position ?? 
+           room.moon_position ?? 
+           this.config.moon_position ?? 
+           CompactCoverControlCard.DEFAULT_MOON_POSITION;
+  }
+
   private _handleRoomButtonClick(room: RoomConfig, action: 'up' | 'middle' | 'down') {
     for (const cover of room.covers) {
-      let position = action === 'up' ? CompactCoverControlCard.SLIDER_MAX : 
-                    action === 'down' ? CompactCoverControlCard.SLIDER_MIN : 
+      let position = action === 'up' ? this._getSunPosition(cover, room) : 
+                    action === 'down' ? this._getMoonPosition(cover, room) : 
                     this._getMiddlePosition(cover, room);
       
       if (this.config.invert_percentage && action === 'middle') {
@@ -300,13 +316,25 @@ export class CompactCoverControlCard extends LitElement {
         }
         this._validatePosition(cover.middle_position,
           `Cover ${cover.name} in room ${room.name} has invalid middle_position`);
+        this._validatePosition(cover.sun_position,
+          `Cover ${cover.name} in room ${room.name} has invalid sun_position`);
+        this._validatePosition(cover.moon_position,
+          `Cover ${cover.name} in room ${room.name} has invalid moon_position`);
       });
       this._validatePosition(room.middle_position, 
         `Room ${room.name} has invalid middle_position`);
+      this._validatePosition(room.sun_position, 
+        `Room ${room.name} has invalid sun_position`);
+      this._validatePosition(room.moon_position, 
+        `Room ${room.name} has invalid moon_position`);
     });
 
     this._validatePosition(config.middle_position, 
       'Card has invalid middle_position');
+    this._validatePosition(config.sun_position, 
+      'Card has invalid sun_position');
+    this._validatePosition(config.moon_position, 
+      'Card has invalid moon_position');
 
     new CoverAutomationHandler(config, this.hass);
 
