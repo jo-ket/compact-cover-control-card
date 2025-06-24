@@ -246,7 +246,7 @@ export class CompactCoverControlCard extends LitElement {
                     action === 'down' ? this._getMoonPosition(cover, room) : 
                     this._getMiddlePosition(cover, room);
       
-      if (this.config.invert_percentage && action === 'middle') {
+      if (this.config.invert_percentage) {
         position = CompactCoverControlCard.SLIDER_MAX - position;
       }
       
