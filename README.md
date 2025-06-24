@@ -12,15 +12,13 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 - 🏠 Group covers by rooms for organized control
 - 🎚️ Individual sliders with visual position indication
 - 🔒 Optional lock functionality for weather protection or safety interlocks
-- 🎯 Customizable middle position per cover, room, or globally
+- 🎯 Customizable positions for all three quick actions (sun, middle, moon)
 - 🔄 Support for KNX-style percentage inversion
 - ⚡ Quick actions for entire rooms (open, middle position, close)
 - 🎨 Gradient visualization of cover positions
 - 🌞 Lux-based automated cover control
 - ⏱️ Time-based automation constraints
 - 🏃‍♂️ Responsive design with Home Assistant theme integration
-
-## Installation
 
 ## Installation
 
@@ -42,6 +40,8 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 | `title` | string | *optional* | Card title |
 | `invert_percentage` | boolean | `false` | Invert percentage display (useful for KNX covers where 0% means open and 100% means closed) |
 | `middle_position` | number | `50` | Default middle position (0-100) for all covers |
+| `sun_position` | number | `100` | Default sun/open position (0-100) for all covers |
+| `moon_position` | number | `0` | Default moon/closed position (0-100) for all covers |
 | `lux_automation` | array | *optional* | List of light-based automation rules for all covers |
 | `rooms` | array | *required* | List of room configurations |
 
@@ -51,6 +51,8 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 |------|------|---------|-------------|
 | `name` | string | *required* | Room name |
 | `middle_position` | number | *optional* | Override default middle position for this room |
+| `sun_position` | number | *optional* | Override default sun/open position for this room |
+| `moon_position` | number | *optional* | Override default moon/closed position for this room |
 | `lux_automation` | array | *optional* | List of light-based automation rules for this room |
 | `covers` | array | *required* | List of cover configurations |
 
@@ -62,6 +64,8 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 | `entity` | string | *required* | Cover entity ID |
 | `lock_entity` | string | *optional* | Entity ID for lock control (when state is 'on', cover controls are disabled) |
 | `middle_position` | number | *optional* | Override middle position for this specific cover |
+| `sun_position` | number | *optional* | Override sun/open position for this specific cover |
+| `moon_position` | number | *optional* | Override moon/closed position for this specific cover |
 | `lux_automation` | array | *optional* | List of light-based automation rules for this specific cover |
 
 ### Lux Automation Configuration
@@ -95,6 +99,39 @@ rooms:
         entity: cover.living_room_window
 ```
 
+### Configuration with Custom Positions
+
+```yaml
+type: custom:compact-cover-control-card
+title: House Blinds
+# Global positions for all covers
+sun_position: 95      # Sun button opens to 95% instead of 100%
+middle_position: 60   # Middle button goes to 60% instead of 50%
+moon_position: 5      # Moon button closes to 5% instead of 0%
+rooms:
+  - name: Living Room
+    # Room-level overrides
+    sun_position: 90
+    middle_position: 50
+    covers:
+      - name: Main Window
+        entity: cover.living_room_main
+        # Cover-specific override (highest priority)
+        sun_position: 85
+        middle_position: 45
+        moon_position: 10
+      - name: Side Window
+        entity: cover.living_room_side
+        # This cover will use room-level positions
+  - name: Bedroom
+    covers:
+      - name: Window Left
+        entity: cover.bedroom_left
+        # This cover will use global card-level positions
+      - name: Window Right
+        entity: cover.bedroom_right
+```
+
 ### Complete Configuration with Lux Automation
 
 ```yaml
@@ -102,6 +139,8 @@ type: custom:compact-cover-control-card
 title: House Blinds
 invert_percentage: true
 middle_position: 70
+sun_position: 95
+moon_position: 5
 # Card-level automation for all covers
 lux_automation:
   - entity: sensor.outdoor_lux
@@ -116,6 +155,7 @@ lux_automation:
 rooms:
   - name: Living Room
     middle_position: 60
+    sun_position: 90
     # Room-level automation
     lux_automation:
       - entity: sensor.living_room_lux
@@ -129,6 +169,8 @@ rooms:
         entity: cover.living_room_main
         lock_entity: binary_sensor.living_room_window_open
         middle_position: 50
+        sun_position: 85
+        moon_position: 10
         # Cover-specific automation
         lux_automation:
           - entity: sensor.main_window_lux
@@ -147,6 +189,24 @@ rooms:
 ```
 
 ## Special Features
+
+### Customizable Position Control
+All three quick action buttons can now be customized:
+
+- **Sun icon (☀️)** - Configurable `sun_position` (default: 100%)
+- **Sun-with-clouds icon (⛅)** - Configurable `middle_position` (default: 50%)  
+- **Moon icon (🌙)** - Configurable `moon_position` (default: 0%)
+
+Each position follows the same hierarchy:
+1. Cover-specific setting (highest priority)
+2. Room-level setting
+3. Card-level setting  
+4. Built-in default (lowest priority)
+
+This allows you to:
+- Set different "fully open" positions for different types of covers
+- Have partial closing positions that still provide privacy
+- Accommodate covers that shouldn't go to 100% or 0% due to mechanical constraints
 
 ### Lux-Based Automation
 The card supports built-in lux-based automation for covers, allowing them to respond automatically to changing light conditions:
@@ -180,7 +240,7 @@ The cover controls will be disabled when the lock entity state is 'on'.
 ### Position Control
 - Room-level quick actions (☀️, ⛅, 🌙) control all covers in the room
 - Individual sliders provide fine-grained control
-- Middle position (⛅) is customizable at card, room, or cover level
+- All positions (sun, middle, moon) are customizable at card, room, or cover level
 - Visual gradient indicates current position with blue (closed) to yellow (open) transition
 
 ## Screenshots
