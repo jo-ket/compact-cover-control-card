@@ -37,6 +37,7 @@ export interface CardConfig {
   middle_position?: number; 
   sun_position?: number;    
   moon_position?: number;  
+  show_stop_icon?: boolean;
   invert_percentage?: boolean;
   rooms: RoomConfig[];
   lux_automation?: LuxAutomation[];

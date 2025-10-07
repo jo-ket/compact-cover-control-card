@@ -19,6 +19,7 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 - 🌞 Lux-based automated cover control
 - ⏱️ Time-based automation constraints
 - 🏃‍♂️ Responsive design with Home Assistant theme integration
+- ⏹️ Optional stop button for halting cover movement at room level
 
 ## Installation
 
@@ -42,6 +43,7 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 | `middle_position` | number | `50` | Default middle position (0-100) for all covers |
 | `sun_position` | number | `100` | Default sun/open position (0-100) for all covers |
 | `moon_position` | number | `0` | Default moon/closed position (0-100) for all covers |
+| `show_stop_icon` | boolean | `false` | Show stop button for all rooms to halt cover movement |
 | `lux_automation` | array | *optional* | List of light-based automation rules for all covers |
 | `rooms` | array | *required* | List of room configurations |
 
@@ -99,6 +101,18 @@ rooms:
         entity: cover.living_room_window
 ```
 
+### Configuration with Stop Button
+```yaml
+type: custom:compact-cover-control-card
+show_stop_icon: true
+rooms:
+  - name: Living Room
+    covers:
+      - name: Window
+        entity: cover.living_room_window
+      - name: Door
+        entity: cover.living_room_door
+
 ### Configuration with Custom Positions
 
 ```yaml
@@ -138,6 +152,7 @@ rooms:
 type: custom:compact-cover-control-card
 title: House Blinds
 invert_percentage: true
+show_stop_icon: true 
 middle_position: 70
 sun_position: 95
 moon_position: 5
@@ -243,6 +258,18 @@ The cover controls will be disabled when the lock entity state is 'on'.
 - All positions (sun, middle, moon) are customizable at card, room, or cover level
 - Visual gradient indicates current position with blue (closed) to yellow (open) transition
 
+### Stop Button
+The optional `show_stop_icon` feature adds a stop button (⏹️) to each room's controls. When enabled:
+- A stop button appears for every room
+- Clicking the stop button halts all cover movement in that room
+- The button is visually separated from position controls with a subtle divider
+- Useful for quickly stopping covers that are in motion
+
+This is particularly helpful when:
+- You need to stop multiple covers at once
+- Covers are moving to an undesired position
+- Quick intervention is needed during automated movements
+
 ## Screenshots
 
 <div align="center">
@@ -257,6 +284,10 @@ Inverted Percentages for KNX Integration
 Lock Functionality (Weather Protection / Safety Interlock)
 
 <img src=".github/images/one_cover_locked.png" width="600" alt="Locked Cover Example"/>
+
+Room with Stop Button (Dark Mode)
+
+<img src=".github/images/dark_mode_with_stop_button.png" width="600" alt="Room with Stop Button in Dark Mode"/>
 </div>
 
 ## Development

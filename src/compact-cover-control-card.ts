@@ -51,6 +51,12 @@ export class CompactCoverControlCard extends LitElement {
       font-size: 1.1em;
       font-weight: 500;
     }
+    .button-separator {
+      color: var(--secondary-text-color);
+      opacity: 0.5;
+      margin: 0 4px;
+      user-select: none;
+    }
     .cover-control {
       display: flex;
       align-items: center;
@@ -147,6 +153,13 @@ export class CompactCoverControlCard extends LitElement {
               class="control-button" 
               @click=${() => this._handleRoomButtonClick(room, 'down')}
             >🌙</button>
+            ${this.config.show_stop_icon ? html`
+              <span class="button-separator">|</span>
+              <button 
+                class="control-button" 
+                @click=${() => this._handleRoomStopClick(room)}
+              >⏹️</button>
+            ` : nothing}
           </div>
         </div>
         ${room.covers.map(cover => this._renderCover(cover))}
@@ -261,6 +274,18 @@ export class CompactCoverControlCard extends LitElement {
     }
   }
 
+  private _handleRoomStopClick(room: RoomConfig) {
+    for (const cover of room.covers) {
+      try {
+        this.hass.callService('cover', 'stop_cover', {
+          entity_id: cover.entity,
+        });
+      } catch (error) {
+        console.error('Error stopping cover:', error);
+      }
+    }
+  }
+
   private _handleSliderChange(event: Event, entityId: string) {
     const target = event.target as HTMLInputElement;
     const position = parseInt(target.value, 10);
@@ -340,6 +365,7 @@ export class CompactCoverControlCard extends LitElement {
 
     this.config = {
       invert_percentage: false,
+      show_stop_icon: false,
       ...config
     };
   }
