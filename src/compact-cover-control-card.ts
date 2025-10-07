@@ -173,7 +173,7 @@ export class CompactCoverControlCard extends LitElement {
           min="${CompactCoverControlCard.SLIDER_MIN}"
           max="${CompactCoverControlCard.SLIDER_MAX}"
           .value=${currentPosition}
-          @input=${(e: Event) => this._handleSliderChange(e, cover.entity)}
+          @change=${(e: Event) => this._handleSliderChange(e, cover.entity)}
           class="slider"
           style="
             direction: ${this.config.invert_percentage ? 'rtl' : 'ltr'};

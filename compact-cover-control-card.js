@@ -77,7 +77,7 @@ const rt=(t,e)=>"method"===e.kind&&e.descriptor&&!("value"in e.descriptor)?{...e
           min="${ht.SLIDER_MIN}"
           max="${ht.SLIDER_MAX}"
           .value=${s}
-          @input=${e=>this._handleSliderChange(e,t.entity)}
+          @change=${e=>this._handleSliderChange(e,t.entity)}
           class="slider"
           style="
             direction: ${this.config.invert_percentage?"rtl":"ltr"};
