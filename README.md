@@ -287,7 +287,7 @@ Lock Functionality (Weather Protection / Safety Interlock)
 
 Room with Stop Button (Dark Mode)
 
-<img src=".github/images/dark_mode_with_stop_button.png" width="600" alt="Locked Cover Example"/>
+<img src=".github/images/dark_mode_with_stop_button.png" width="600" alt="Room with Stop Button in Dark Mode"/>
 </div>
 
 ## Development
