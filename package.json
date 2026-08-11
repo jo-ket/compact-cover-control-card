@@ -1,6 +1,6 @@
 {
   "name": "compact-cover-control-card",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Custom card for controlling covers in Home Assistant",
   "keywords": [
     "home-assistant",

@@ -98,7 +98,7 @@ const rt=(t,e)=>"method"===e.kind&&e.descriptor&&!("value"in e.descriptor)?{...e
           ${t.lock_entity&&s?D`<span class="lock-icon">🔒</span>`:""}
         </span>
       </div>
-    `}_calculateGradient(t){const e=this.config.invert_percentage?ht.SLIDER_MAX-t:t,i=this.config.invert_percentage?ht.GRADIENT_COLORS.CLOSED:ht.GRADIENT_COLORS.OPEN,o=this.config.invert_percentage?ht.GRADIENT_COLORS.OPEN:ht.GRADIENT_COLORS.CLOSED;return`linear-gradient(to right, \n      ${i} ${ht.SLIDER_MIN}%, \n      ${i} ${e}%, \n      ${o} ${e}%, \n      ${o} ${ht.SLIDER_MAX}%)`}_handleNameClick(t){const e=new CustomEvent("hass-more-info",{detail:{entityId:t},bubbles:!0,composed:!0});this.dispatchEvent(e)}_hasLuxAutomation(t,e){var i,o,n;return!!((null===(i=t.lux_automation)||void 0===i?void 0:i.length)||(null===(o=e.lux_automation)||void 0===o?void 0:o.length)||(null===(n=this.config.lux_automation)||void 0===n?void 0:n.length))}_getAutomationEnableEntity(t,e){var i,o;return null!==(o=null!==(i=t.lux_automation_enable_entity)&&void 0!==i?i:e.lux_automation_enable_entity)&&void 0!==o?o:this.config.lux_automation_enable_entity}_renderAutomationIcon(t,e){var i;if(!this._hasLuxAutomation(t,e))return j;const o=this._getAutomationEnableEntity(t,e),n=!o||"on"===(null===(i=this.hass.states[o])||void 0===i?void 0:i.state);return D`
+    `}_calculateGradient(t){const e=this.config.invert_percentage?ht.SLIDER_MAX-t:t,i=this.config.invert_percentage?ht.GRADIENT_COLORS.CLOSED:ht.GRADIENT_COLORS.OPEN,o=this.config.invert_percentage?ht.GRADIENT_COLORS.OPEN:ht.GRADIENT_COLORS.CLOSED;return`linear-gradient(to right, \n      ${i} ${ht.SLIDER_MIN}%, \n      ${i} ${e}%, \n      ${o} ${e}%, \n      ${o} ${ht.SLIDER_MAX}%)`}_handleNameClick(t){const e=new CustomEvent("hass-more-info",{detail:{entityId:t},bubbles:!0,composed:!0});this.dispatchEvent(e)}_hasLuxAutomation(t,e){var i,o,n;return!!((null===(i=t.lux_automation)||void 0===i?void 0:i.length)||(null===(o=e.lux_automation)||void 0===o?void 0:o.length)||(null===(n=this.config.lux_automation)||void 0===n?void 0:n.length))}_getAutomationEnableEntity(t,e){var i,o;return null!==(o=null!==(i=t.lux_automation_enable_entity)&&void 0!==i?i:e.lux_automation_enable_entity)&&void 0!==o?o:this.config.lux_automation_enable_entity}_renderAutomationIcon(t,e){var i;if(!this._hasLuxAutomation(t,e))return D`<span class="automation-icon"></span>`;const o=this._getAutomationEnableEntity(t,e),n=!o||"on"===(null===(i=this.hass.states[o])||void 0===i?void 0:i.state);return D`
       <span
         class="automation-icon ${n?"":"disabled"} ${o?"clickable":""}"
         title=${o?`Lux automation ${n?"enabled":"disabled"} - click to ${n?"disable":"enable"}`:"Lux automation configured"}
@@ -159,6 +159,7 @@ const rt=(t,e)=>"method"===e.kind&&e.descriptor&&!("value"in e.descriptor)?{...e
     }
     .slider {
       flex-grow: 1;
+      min-width: 0;
       height: 6px;
       -webkit-appearance: none;
       appearance: none;
@@ -182,6 +183,9 @@ const rt=(t,e)=>"method"===e.kind&&e.descriptor&&!("value"in e.descriptor)?{...e
       margin-left: 4px;
     }
     .automation-icon {
+      display: inline-block;
+      width: 1.1em;
+      text-align: center;
       opacity: 0.9;
       font-size: 0.9em;
     }
