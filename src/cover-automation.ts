@@ -140,6 +140,7 @@ private validateConfig(config: CardConfig): CardConfig {
   private processCoverAutomation(cover: CoverConfig, room: RoomConfig): void {
     const automations = this.getCoverAutomations(cover, room);
     if (!automations.length) return;
+    if (!this.isAutomationEnabled(cover, room)) return;
 
     const state = this.hass.states[cover.entity];
     if (!state || state.state === 'unavailable') return;
@@ -161,6 +162,14 @@ private validateConfig(config: CardConfig): CardConfig {
       ...(room.lux_automation || []),
       ...(this.config.lux_automation || [])
     ];
+  }
+
+  private isAutomationEnabled(cover: CoverConfig, room: RoomConfig): boolean {
+    const enableEntity = cover.lux_automation_enable_entity ??
+      room.lux_automation_enable_entity ??
+      this.config.lux_automation_enable_entity;
+    if (!enableEntity) return true;
+    return this.hass.states[enableEntity]?.state === 'on';
   }
 
   private shouldAutomationRun(auto: LuxAutomation, currentPosition: number): boolean {

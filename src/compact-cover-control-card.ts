@@ -102,6 +102,16 @@ export class CompactCoverControlCard extends LitElement {
       opacity: 0.5;
       margin-left: 4px;
     }
+    .automation-icon {
+      opacity: 0.9;
+      font-size: 0.9em;
+    }
+    .automation-icon.disabled {
+      opacity: 0.3;
+    }
+    .automation-icon.clickable {
+      cursor: pointer;
+    }
     .name-label {
       min-width: 120px;
       cursor: pointer;
@@ -162,18 +172,18 @@ export class CompactCoverControlCard extends LitElement {
             ` : nothing}
           </div>
         </div>
-        ${room.covers.map(cover => this._renderCover(cover))}
+        ${room.covers.map(cover => this._renderCover(cover, room))}
       </div>
     `;
   }
 
-  private _renderCover(cover: CoverConfig) {
+  private _renderCover(cover: CoverConfig, room: RoomConfig) {
     const state = this.hass.states[cover.entity];
     const isLocked = cover.lock_entity ? this.hass.states[cover.lock_entity]?.state === 'on' : false;
     const currentPosition = state?.attributes.current_position ?? 0;
     const invertedPosition = this._invertPercentage(currentPosition);
-    const displayValue = state?.attributes.current_position !== undefined 
-      ? `${invertedPosition}%` 
+    const displayValue = state?.attributes.current_position !== undefined
+      ? `${invertedPosition}%`
       : '---';
 
     return html`
@@ -181,7 +191,8 @@ export class CompactCoverControlCard extends LitElement {
         <span class="name-label" @click=${() => this._handleNameClick(cover.entity)}>
           ${cover.name}
         </span>
-        <input 
+        ${this._renderAutomationIcon(cover, room)}
+        <input
           type="range" 
           min="${CompactCoverControlCard.SLIDER_MIN}"
           max="${CompactCoverControlCard.SLIDER_MAX}"
@@ -226,6 +237,44 @@ export class CompactCoverControlCard extends LitElement {
       composed: true
     });
     this.dispatchEvent(event);
+  }
+
+  private _hasLuxAutomation(cover: CoverConfig, room: RoomConfig): boolean {
+    return !!(cover.lux_automation?.length || room.lux_automation?.length || this.config.lux_automation?.length);
+  }
+
+  private _getAutomationEnableEntity(cover: CoverConfig, room: RoomConfig): string | undefined {
+    return cover.lux_automation_enable_entity ??
+      room.lux_automation_enable_entity ??
+      this.config.lux_automation_enable_entity;
+  }
+
+  private _renderAutomationIcon(cover: CoverConfig, room: RoomConfig) {
+    if (!this._hasLuxAutomation(cover, room)) return nothing;
+
+    const enableEntity = this._getAutomationEnableEntity(cover, room);
+    const isEnabled = enableEntity ? this.hass.states[enableEntity]?.state === 'on' : true;
+
+    return html`
+      <span
+        class="automation-icon ${!isEnabled ? 'disabled' : ''} ${enableEntity ? 'clickable' : ''}"
+        title=${enableEntity
+          ? `Lux automation ${isEnabled ? 'enabled' : 'disabled'} - click to ${isEnabled ? 'disable' : 'enable'}`
+          : 'Lux automation configured'}
+        @click=${enableEntity ? (e: Event) => this._handleAutomationToggle(e, enableEntity) : undefined}
+      >💡</span>
+    `;
+  }
+
+  private _handleAutomationToggle(event: Event, entityId: string) {
+    event.stopPropagation();
+    try {
+      this.hass.callService('homeassistant', 'toggle', {
+        entity_id: entityId,
+      });
+    } catch (error) {
+      console.error('Error toggling lux automation:', error);
+    }
   }
 
   private _invertPercentage(position: number): number {

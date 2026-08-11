@@ -15,30 +15,33 @@ export interface LuxAutomation {
 export interface CoverConfig {
   name: string;
   entity: string;
-  lock_entity?: string;     
-  middle_position?: number; 
-  sun_position?: number;    
-  moon_position?: number;  
-  lux_automation?: LuxAutomation[]; 
+  lock_entity?: string;
+  middle_position?: number;
+  sun_position?: number;
+  moon_position?: number;
+  lux_automation?: LuxAutomation[];
+  lux_automation_enable_entity?: string;
 }
 
 export interface RoomConfig {
   name: string;
   covers: CoverConfig[];
   middle_position?: number;
-  sun_position?: number;    
-  moon_position?: number;   
-  lux_automation?: LuxAutomation[]; 
+  sun_position?: number;
+  moon_position?: number;
+  lux_automation?: LuxAutomation[];
+  lux_automation_enable_entity?: string;
 }
 
 export interface CardConfig {
   type: string;
-  title?: string;           
-  middle_position?: number; 
-  sun_position?: number;    
-  moon_position?: number;  
+  title?: string;
+  middle_position?: number;
+  sun_position?: number;
+  moon_position?: number;
   show_stop_icon?: boolean;
   invert_percentage?: boolean;
   rooms: RoomConfig[];
   lux_automation?: LuxAutomation[];
+  lux_automation_enable_entity?: string;
 }
