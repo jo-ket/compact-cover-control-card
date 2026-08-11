@@ -80,6 +80,7 @@ export class CompactCoverControlCard extends LitElement {
     }
     .slider {
       flex-grow: 1;
+      min-width: 0;
       height: 6px;
       -webkit-appearance: none;
       appearance: none;
@@ -103,6 +104,9 @@ export class CompactCoverControlCard extends LitElement {
       margin-left: 4px;
     }
     .automation-icon {
+      display: inline-block;
+      width: 1.1em;
+      text-align: center;
       opacity: 0.9;
       font-size: 0.9em;
     }
@@ -250,7 +254,9 @@ export class CompactCoverControlCard extends LitElement {
   }
 
   private _renderAutomationIcon(cover: CoverConfig, room: RoomConfig) {
-    if (!this._hasLuxAutomation(cover, room)) return nothing;
+    if (!this._hasLuxAutomation(cover, room)) {
+      return html`<span class="automation-icon"></span>`;
+    }
 
     const enableEntity = this._getAutomationEnableEntity(cover, room);
     const isEnabled = enableEntity ? this.hass.states[enableEntity]?.state === 'on' : true;
