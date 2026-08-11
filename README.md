@@ -17,6 +17,7 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 - ⚡ Quick actions for entire rooms (open, middle position, close)
 - 🎨 Gradient visualization of cover positions
 - 🌞 Lux-based automated cover control
+- 💡 At-a-glance indicator for covers with lux automation, with optional one-tap enable/disable
 - ⏱️ Time-based automation constraints
 - 🏃‍♂️ Responsive design with Home Assistant theme integration
 - ⏹️ Optional stop button for halting cover movement at room level
@@ -45,6 +46,7 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 | `moon_position` | number | `0` | Default moon/closed position (0-100) for all covers |
 | `show_stop_icon` | boolean | `false` | Show stop button for all rooms to halt cover movement |
 | `lux_automation` | array | *optional* | List of light-based automation rules for all covers |
+| `lux_automation_enable_entity` | string | *optional* | Entity ID (e.g. `input_boolean`) that gates lux automation for all covers; state `on` = enabled. Omit to always run automation |
 | `rooms` | array | *required* | List of room configurations |
 
 ### Room Configuration
@@ -56,6 +58,7 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 | `sun_position` | number | *optional* | Override default sun/open position for this room |
 | `moon_position` | number | *optional* | Override default moon/closed position for this room |
 | `lux_automation` | array | *optional* | List of light-based automation rules for this room |
+| `lux_automation_enable_entity` | string | *optional* | Entity ID that gates lux automation for this room's covers; overrides the card-level entity. State `on` = enabled |
 | `covers` | array | *required* | List of cover configurations |
 
 ### Cover Configuration
@@ -69,6 +72,7 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 | `sun_position` | number | *optional* | Override sun/open position for this specific cover |
 | `moon_position` | number | *optional* | Override moon/closed position for this specific cover |
 | `lux_automation` | array | *optional* | List of light-based automation rules for this specific cover |
+| `lux_automation_enable_entity` | string | *optional* | Entity ID that gates lux automation for this cover; overrides the room- and card-level entity. State `on` = enabled |
 
 ### Lux Automation Configuration
 
@@ -87,6 +91,19 @@ A space-efficient custom card for Home Assistant that provides an intuitive inte
 |------|------|---------|-------------|
 | `hour` | number | *required* | Hour (0-23) |
 | `minute` | number | *required* | Minute (0-59) |
+
+### Lux Automation Indicator
+
+Any cover with an effective `lux_automation` rule (from the cover, its room, or the card)
+shows a 💡 icon next to its name.
+
+- If no `lux_automation_enable_entity` applies to that cover, the icon is just an indicator —
+  lux automation is always active, same as before this option existed.
+- If a `lux_automation_enable_entity` applies (cover-level wins, then room-level, then
+  card-level), the icon reflects that entity's state: full brightness when `on`, dimmed when
+  not. Clicking it toggles the entity (via `homeassistant.toggle`), letting you disable/enable
+  lux automation for that cover without editing YAML. Since the entity is shared per scope, a
+  room- or card-level entity toggled from one cover's icon affects every cover using it.
 
 ## Usage Examples
 
@@ -167,6 +184,9 @@ lux_automation:
     before:
       hour: 18
       minute: 0
+# input_boolean.lux_automation_master toggles the icon/automation for every cover
+# that doesn't define a more specific enable entity of its own
+lux_automation_enable_entity: input_boolean.lux_automation_master
 rooms:
   - name: Living Room
     middle_position: 60
@@ -192,6 +212,8 @@ rooms:
             above: 5000    # Moderate sunlight
             below: 15000   # Not too bright
             position: 60   # Partially open
+        # Overrides the card-level enable entity just for this cover
+        lux_automation_enable_entity: input_boolean.main_window_lux_automation
       - name: Side Window
         entity: cover.living_room_side
         lock_entity: binary_sensor.weather_protection
